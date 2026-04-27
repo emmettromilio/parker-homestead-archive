@@ -169,12 +169,14 @@
             width: 100%;
             height: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-family: 'Oswald', sans-serif;
             color: var(--grey);
             font-size: 0.9em;
             border-bottom: 3px solid var(--green);
+            gap: 6px;
         }
 
         .card-content { padding: 18px; }
@@ -291,10 +293,12 @@
             height: 100%;
             min-height: 120px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 0.75em;
             color: var(--grey);
+            gap: 4px;
         }
 
         .list-body {
@@ -409,7 +413,7 @@
 
 <div class="archive-header">
     <h1>The Parker Homestead</h1>
-    <p>Virtual Archive &mdash; Book Collection</p>
+    <p>Virtual Archive &mdash; Book & Postcard Collection</p>
 </div>
 
 <div class="controls">
@@ -573,6 +577,14 @@
         });
     }
 
+    function createNoImagePlaceholder(size = 'large') {
+        const fontSize = size === 'large' ? '1.8em' : '1.4em';
+        const el = document.createElement('div');
+        el.className = 'no-img';
+        el.innerHTML = `<span style="font-size: ${fontSize};">⌂</span><span>No Image</span>`;
+        return el;
+    }
+
     // ── GRID CARD ─────────────────────────────────────────────
     function buildGridCard(row) {
         const card = document.createElement("div");
@@ -580,9 +592,21 @@
         card.onclick = () => openModal(row);
 
         const imgSrc = getImgSrc(row);
-        const imgHTML = imgSrc
-            ? `<img src="${imgSrc}" alt="${esc(getTitle(row))}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-img\\'>No Image</div>'">`
-            : `<div class="no-img">No Image</div>`;
+        const imgWrap = document.createElement("div");
+        imgWrap.className = "card-img-wrap";
+        
+        if (imgSrc) {
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = getTitle(row);
+            img.loading = "lazy";
+            img.onerror = function() {
+                this.replaceWith(createNoImagePlaceholder('large'));
+            };
+            imgWrap.appendChild(img);
+        } else {
+            imgWrap.appendChild(createNoImagePlaceholder('large'));
+        }
 
         const creator = getCreator(row);
         const date = getDate(row);
@@ -592,24 +616,26 @@
         const itemType = getItemType(row) || getType(row);
         const tags = getTags(row);
 
-        card.innerHTML = `
-            <div class="card-img-wrap">${imgHTML}</div>
-            <div class="card-content">
-                <h2>${esc(getTitle(row))}</h2>
-                <div class="meta-row">
-                    ${date ? `<span class="badge date">${esc(date)}</span>` : ""}
-                    ${itemType ? `<span class="badge">${esc(itemType)}</span>` : ""}
-                    ${tags ? `<span class="badge">${esc(tags.split("|")[0])}</span>` : ""}
-                </div>
-                ${desc ? `<p class="card-desc">${esc(desc)}</p>` : ""}
-                <div class="card-meta-grid">
-                    ${creator ? `<div class="meta-item"><span class="meta-label">Author</span><span class="meta-value">${esc(creator)}</span></div>` : ""}
-                    ${publisher ? `<div class="meta-item"><span class="meta-label">Publisher</span><span class="meta-value">${esc(publisher)}</span></div>` : ""}
-                    ${subject ? `<div class="meta-item"><span class="meta-label">Call No.</span><span class="meta-value">${esc(subject)}</span></div>` : ""}
-                    ${getCollection(row) ? `<div class="meta-item"><span class="meta-label">Collection</span><span class="meta-value">${esc(getCollection(row))}</span></div>` : ""}
-                </div>
+        const content = document.createElement("div");
+        content.className = "card-content";
+        content.innerHTML = `
+            <h2>${esc(getTitle(row))}</h2>
+            <div class="meta-row">
+                ${date ? `<span class="badge date">${esc(date)}</span>` : ""}
+                ${itemType ? `<span class="badge">${esc(itemType)}</span>` : ""}
+                ${tags ? `<span class="badge">${esc(tags.split("|")[0])}</span>` : ""}
+            </div>
+            ${desc ? `<p class="card-desc">${esc(desc)}</p>` : ""}
+            <div class="card-meta-grid">
+                ${creator ? `<div class="meta-item"><span class="meta-label">Author</span><span class="meta-value">${esc(creator)}</span></div>` : ""}
+                ${publisher ? `<div class="meta-item"><span class="meta-label">Publisher</span><span class="meta-value">${esc(publisher)}</span></div>` : ""}
+                ${subject ? `<div class="meta-item"><span class="meta-label">Call No.</span><span class="meta-value">${esc(subject)}</span></div>` : ""}
+                ${getCollection(row) ? `<div class="meta-item"><span class="meta-label">Collection</span><span class="meta-value">${esc(getCollection(row))}</span></div>` : ""}
             </div>
         `;
+        
+        card.appendChild(imgWrap);
+        card.appendChild(content);
         return card;
     }
 
@@ -620,25 +646,39 @@
         card.onclick = () => openModal(row);
 
         const imgSrc = getImgSrc(row);
-        const imgHTML = imgSrc
-            ? `<img src="${imgSrc}" alt="${esc(getTitle(row))}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-img\\'>No Image</div>'">`
-            : `<div class="no-img">No Image</div>`;
+        const imgThumb = document.createElement("div");
+        imgThumb.className = "list-thumb";
+        
+        if (imgSrc) {
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = getTitle(row);
+            img.loading = "lazy";
+            img.onerror = function() {
+                this.replaceWith(createNoImagePlaceholder('small'));
+            };
+            imgThumb.appendChild(img);
+        } else {
+            imgThumb.appendChild(createNoImagePlaceholder('small'));
+        }
 
         const creator = getCreator(row);
         const date = getDate(row);
         const desc = getDesc(row);
 
-        card.innerHTML = `
-            <div class="list-thumb">${imgHTML}</div>
-            <div class="list-body">
-                <h2>${esc(getTitle(row))}</h2>
-                <div class="meta-row">
-                    ${date ? `<span class="badge date">${esc(date)}</span>` : ""}
-                    ${creator ? `<span class="badge">${esc(creator)}</span>` : ""}
-                </div>
-                ${desc ? `<p class="card-desc">${esc(desc)}</p>` : ""}
+        const body = document.createElement("div");
+        body.className = "list-body";
+        body.innerHTML = `
+            <h2>${esc(getTitle(row))}</h2>
+            <div class="meta-row">
+                ${date ? `<span class="badge date">${esc(date)}</span>` : ""}
+                ${creator ? `<span class="badge">${esc(creator)}</span>` : ""}
             </div>
+            ${desc ? `<p class="card-desc">${esc(desc)}</p>` : ""}
         `;
+        
+        card.appendChild(imgThumb);
+        card.appendChild(body);
         return card;
     }
 
@@ -698,10 +738,8 @@
 
         // Links
         const linksEl = document.getElementById("modalLinks");
-        const url = getUrl(row);
         const ext = getIsFormatOf(row);
         linksEl.innerHTML = [
-            url ? `<a class="link-btn primary" href="${url}" target="_blank" rel="noopener">View on Omeka</a>` : "",
             ext && ext.startsWith("http") ? `<a class="link-btn secondary" href="${ext}" target="_blank" rel="noopener">External Source</a>` : "",
         ].join("");
 

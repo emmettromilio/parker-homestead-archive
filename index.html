@@ -32,6 +32,30 @@
             background-color: var(--green);
             padding: 36px 24px 28px;
             text-align: center;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(216,223,221,0.3);
+            color: var(--accent);
+            padding: 10px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: background 0.2s, border-color 0.2s;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .back-button:hover {
+            background: rgba(216,223,221,0.2);
+            border-color: var(--accent);
         }
 
         .archive-header h1 {
@@ -403,6 +427,14 @@
         /* ── RESPONSIVE ── */
         @media (max-width: 600px) {
             .archive-header h1 { font-size: 1.7em; }
+            .back-button {
+                position: static;
+                transform: none;
+                display: inline-block;
+                margin-bottom: 12px;
+                width: 100%;
+                max-width: 200px;
+            }
             .modal-fields { grid-template-columns: 1fr; }
             .modal-field.full { grid-column: 1; }
             .list-thumb { width: 80px; }
@@ -412,6 +444,7 @@
 <body>
 
 <div class="archive-header">
+    <a href="https://parkerhomestead1665.org" class="back-button">← Back</a>
     <h1>The Parker Homestead</h1>
     <p>Virtual Archive &mdash; Book & Postcard Collection</p>
 </div>
